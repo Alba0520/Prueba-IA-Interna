@@ -1,0 +1,35 @@
+version: '3.8'
+
+services:
+  # 1. Tu Aplicación (Studio Brain)
+  studio-brain:
+    build: .
+    container_name: studio-brain-app
+    ports:
+      - "8501:8501"  # Puerto web
+    volumes:
+      - ./db:/app/db  # Esto guarda la "memoria" (PDFs procesados) aunque reinicies
+    environment:
+      - OLLAMA_HOST=http://ollama:11434  # Conectar con el servicio de abajo
+    depends_on:
+      - ollama
+
+  # 2. El Cerebro (Ollama)
+  ollama:
+    image: ollama/ollama:latest
+    container_name: ollama-brain
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_models:/root/.ollama  # Guardar los modelos descargados (GBs)
+    # IMPORTANTE: Descomentar si tienes GPU NVIDIA en el servidor
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices:
+    #         - driver: nvidia
+    #           count: 1
+    #           capabilities: [gpu]
+
+volumes:
+  ollama_models:
